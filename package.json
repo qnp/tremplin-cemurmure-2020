@@ -1,0 +1,24 @@
+{
+  "name": "tremplin-cemurmure-2020",
+  "version": "1.0.0",
+  "description": "Online tremplin of cemurmure festival 2020",
+  "author": "François Risoud",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "nuxt": "^2.0.0",
+    "vue-social-sharing": "^2.4.7"
+  },
+  "devDependencies": {
+    "@nuxtjs/vuetify": "^1.0.0",
+    "pug": "^2.0.4",
+    "pug-plain-loader": "^1.0.0",
+    "stylus": "^0.54.7",
+    "stylus-loader": "^3.0.2"
+  }
+}

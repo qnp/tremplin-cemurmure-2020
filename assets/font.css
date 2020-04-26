@@ -1,0 +1,64 @@
+@font-face {
+    font-family: 'FashionFetishOutline';
+    src: url('/fonts/FashionFetish-Outline.woff2') format('woff2'),
+        url('/fonts/FashionFetish-Outline.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FashionFetish';
+    src: url('/fonts/FashionFetish.woff2') format('woff2'),
+        url('/fonts/FashionFetish.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FashionFetishSmallCaps';
+    src: url('/fonts/FashionFetishSmallCaps.woff2') format('woff2'),
+        url('/fonts/FashionFetishSmallCaps.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FashionFetish';
+    src: url('/fonts/FashionFetish.woff2') format('woff2'),
+        url('/fonts/FashionFetish.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FashionFetish';
+    src: url('/fonts/FashionFetish-Italic.woff2') format('woff2'),
+        url('/fonts/FashionFetish-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'FashionFetish';
+    src: url('/fonts/FashionFetishLight-Italic.woff2') format('woff2'),
+        url('/fonts/FashionFetishLight-Italic.woff') format('woff');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'FashionFetish';
+    src: url('/fonts/FashionFetishLight.woff2') format('woff2'),
+        url('/fonts/FashionFetishLight.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'FashionFetish';
+    src: url('/fonts/FashionFetishHeavy.woff2') format('woff2'),
+        url('/fonts/FashionFetishHeavy.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
