@@ -1,6 +1,7 @@
 <template lang="pug">
   .youtube-video
     iframe(
+      v-if="code"
       :width="width"
       :height="height"
       :src="'https://www.youtube.com/embed/' + code"
@@ -30,7 +31,7 @@ export default {
     },
     code: {
       type: String,
-      required: true,
+      default: '',
     },
   },
 };
