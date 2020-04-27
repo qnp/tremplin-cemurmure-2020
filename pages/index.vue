@@ -19,10 +19,16 @@
           text-animation(:start-delay="1") présente
         .flyer-title__tremplin
           text-animation(:start-delay="2.5" :stagger-delay="0.2" mode="to-center" reverse) LE TREMPLIN
-        .flyer-title__catchline(:class="{ show: showCatchline }") <b>Écoutez</b>, <b class="emph-text">votez</b> et élisez le gagant pour l’édition <b>2020</b> !
+        .flyer-title__catchline(:class="{ show: showCatchline }") <b>Écoutez</b>, <b class="emph-text">votez</b> et élisez le gagant pour l’édition&nbsp;<b>2020</b>&nbsp;!
 
-      v-btn.vote__button(color="primary" x-large @click="showVoteDialog = true" :disabled="doneVote")
-        .vote__button__text VOTER
+      v-btn.vote__button(
+        color="primary"
+        x-large
+        @click="showVoteDialog = true"
+        :disabled="doneVote"
+        :class="{ 'vote__button--show': showVoteButton }"
+      )
+        .vote__button__text {{ doneVote ? 'VOTÉ' : 'VOTER' }}
         v-icon.ml-2 {{ doneVote ? 'mdi-check' : 'mdi-vote' }}
 
     transition(name="t-fade-out")
@@ -39,7 +45,7 @@
         .dialog__control__text suivant
         .dialog__control__group {{ nextGroup.name }}
 
-      v-card(color="accent")
+      v-card.group__dialog(color="accent")
         v-card-title.dialog__group-name.primary.accent--text {{ selectedGroup.name }}
           v-btn.dialog__close(icon absolute @click="showGroupVideo = false")
             v-icon mdi-close
@@ -47,7 +53,7 @@
 
     v-dialog(v-model="showVoteDialog" width="580")
       v-card.vote__dialog(color="accent" dark)
-        v-card-title.secondary.justify-center.accent--text {{ voteError ? 'Erreur' : doneVote ? 'Vous avez voté' : 'Votez pour votre groupe préféré' }}
+        v-card-title.secondary.justify-center.accent--text {{ voteError ? 'Erreur' : doneVote ? 'Vous avez voté' : $vuetify.breakpoint.xs ? 'Votez' : 'Votez pour votre groupe préféré' }}
           v-btn.dialog__close(icon absolute @click="showVoteDialog = false" color="accent")
             v-icon mdi-close
         template(v-if="!doneVote && !voteError")
@@ -58,9 +64,9 @@
               @submit="e => e.preventDefault()"
               lazy-validation
             )
-              p.mt-6.primary--text Le groupe heureux élu de votre
-                v-icon.mx-2(color="secondary") mdi-heart
-                span est :
+              p.mt-4.primary--text Le groupe heureux élu de votre&nbsp;
+                v-icon.mr-2(color="secondary") mdi-heart
+                span est&nbsp;:
               v-radio-group(
                 :rules="[v => !!v || 'Choix du groupe requis']"
                 v-model="votedGroup"
@@ -73,8 +79,8 @@
                   :value="group.name"
                   color="primary"
                 )
-              p.primary--text.mb-2 Renseignez votre adresse email :
-              v-text-field(
+              p.primary--text.mb-2 Renseignez votre adresse&nbsp;email&nbsp;:
+              v-text-field.vote__email(
                 outlined
                 label="email"
                 name="email"
@@ -84,7 +90,7 @@
                 validate-on-blur
                 v-model="voteEmail"
               )
-              small Nous avons besoin de votre adresse pour vous envoyer un email afin de valider votre vote. Aucun email n’est stocké, ni partagé à des fins publicitaires.
+              small Nous avons besoin de votre adresse pour vous envoyer un email afin de valider ce vote. Aucun email n’est stocké, ni partagé à des fins publicitaires.
           v-card-actions
             v-spacer
             v-btn(large text color="secondary" @click="showVoteDialog = false") Annuler
@@ -134,6 +140,11 @@ $bounce := cubic-bezier(0.64, 0.57, 0.67, 1.53)
 make-title($size)
   font-size $size
   text-shadow (0.05 * $size) (0.05 * $size) 0 $color-accent
+
+make-sun($size)
+  width $size
+  height $size
+  border-radius 0.5 * $size
 
 absolute-full()
   position absolute
@@ -198,6 +209,7 @@ select:-webkit-autofill:focus
   text-shadow 2px 2px 0 $color-accent
   font-weight bold
   font-size 24px
+  white-space pre
 
   &::before, &::after
     content ''
@@ -231,9 +243,7 @@ select:-webkit-autofill:focus
 
   .flyer-image-sun
     position absolute
-    width $sun-size
-    height $sun-size
-    border-radius 0.5 * $sun-size
+    make-sun($sun-size)
     background-color $color-primary
     top 120%
     left 50%
@@ -244,13 +254,15 @@ select:-webkit-autofill:focus
   .flyer-image-tremplin
     absolute-full()
     background-image url('/images/tremplin.png')
-    background-position center center
+    background-position 50% 50%
     background-size 140%
     pointer-events none
 
   .flyer-image-water
-    position fixed
+    position absolute
     bottom 0
+    left 0
+    right 0
     width 100%
     height 17%
     background-position 0 0
@@ -387,14 +399,25 @@ select:-webkit-autofill:focus
     text-align center
 
 .vote__button
-  position fixed
+  position absolute
   right 24px
   bottom calc(17% + 24px)
+  opacity 0
+  transform scale(0.5)
+  transition opacity 0.5s, transform 0.5s $bounce
+
+  &--show
+    opacity 1
+    transform scale(1)
 
   .vote__button__text
     margin-top 4px
 
 .vote__dialog
+  .v-card__text
+    max-height calc(100vh - 166px)
+    overflow scroll
+
   .v-input--selection-controls .v-radio > .v-label
     padding-top 6px
 
@@ -433,20 +456,76 @@ select:-webkit-autofill:focus
   .scene
     .flyer-image-tremplin
       background-size 280%
+      background-position 64% 58%
 
-    .flyer-image-water
-      height 25%
+    .flyer-image-sun
+      left 25%
 
     .flyer-title__tremplin
       make-title(50px)
 
-@media (max-width:460px)
+    .flyer-groups
+      width 75%
+
+@media (max-width: 460px)
   .scene
     .flyer-image-tremplin
       background-size 380%
+      background-position 61% 70%
+
+    .flyer-image-sun
+      left 9%
+      make-sun(0.75 * $sun-size)
+
+    .flyer-title
+      height 168px
+
+    .flyer-title__cemurmure
+      font-size 16px
+
+    .flyer-title__presente
+      font-size 12px
 
     .flyer-title__tremplin
-      make-title(40px)
+      margin-top 16px
+      make-title(38px)
+
+    .flyer-title__catchline
+      margin-top 8px
+      font-size 12px
+
+    .flyer-groups
+      width 100%
+
+  .vote__button
+    right 24px
+
+  .dialog__control
+    top calc(100% - 64px)
+    box-shadow 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+
+  .v-dialog > .v-card.vote__dialog > .v-card__title
+    font-size 16px
+
+  .v-dialog > .v-card > .v-card__text
+    padding 0 24px 18px
+
+  .vote__email
+    font-size 12px
+
+@media (max-width: 370px)
+  .scene
+    .flyer-image-sun
+      left 7%
+
+    .flyer-group
+      font-size 14px
+
+  .v-dialog > .v-card.group__dialog > .v-card__title
+    font-size 16px
+
+  .vote__email
+    font-size 12px
 
 @keyframes slide-water
   0%
@@ -484,22 +563,39 @@ select:-webkit-autofill:focus
 </style>
 
 <script>
+import to from 'await-to-js';
+import axios from 'axios';
 import TextAnimation from '@/components/TextAnimation';
 import YoutubeVideo from '@/components/YoutubeVideo';
 
 const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const shareEmailSubject = 'Votez pour le templin Cemurmure 2020 !'
+const shareEmailSubject = 'Votez pour le templin Cemurmure 2020 !';
 const shareEmailBody = 'http://tremplin2020.cemurmurefestival.com';
 
 function encode(str) {
   if (global.encodeURIComponent) {
-    return global.encodeURIComponent(str)
+    return global.encodeURIComponent(str);
   } else {
     return str;
   }
 }
 
-const shareMailto = 'mailto:?subject=' + encode(shareEmailSubject) +'&body=' + encode(shareEmailBody);
+const emailCloudFnUrlDev =
+  'http://localhost:5001/ce-murmure-festival/europe-west1/sendVoteEmail';
+const emailCloudFnUrlProd =
+  'http://localhost:5001/ce-murmure-festival/europe-west1/sendVoteEmail';
+const emailCloudFnUrl =
+  process.env.NODE_ENV === 'production'
+    ? emailCloudFnUrlProd
+    : emailCloudFnUrlDev;
+
+const shareMailto =
+  'mailto:?subject=' +
+  encode(shareEmailSubject) +
+  '&body=' +
+  encode(shareEmailBody);
+
+const fakeLoadingDelay = 0 * 1500;
 
 export default {
   components: {
@@ -527,20 +623,24 @@ export default {
         { name: 'San-Seyha', code: 'iPGgnzc34tY' },
         { name: 'The Boys Friends', code: 'Tj2m42KEHwo' },
       ],
+      showVoteButton: false,
       showVoteDialog: false,
       votedGroup: null,
       validVote: false,
       voteEmail: null,
-      emailRules: [v => !!v || 'Adresse email requise', v => emailRegex.test(v) || 'Format d’email invalide'],
+      emailRules: [
+        v => !!v || 'Adresse email requise',
+        v => emailRegex.test(v) || 'Format d’email invalide',
+      ],
       voteLoading: false,
       voteError: false,
       doneVote: false,
       shareMailto,
     };
   },
-  created() {
+  mounted() {
     this.load();
-    setTimeout(() => this.loadedImages++, 1500);
+    setTimeout(() => this.loadedImages++, fakeLoadingDelay);
   },
   computed: {
     loadProgress() {
@@ -550,7 +650,7 @@ export default {
       return !this.loading ? 'scene--started' : null;
     },
     loading() {
-      return false;
+      // return false;
       return (
         !this.finishLoading || this.loadedImages < this.imageSources.length + 1
       );
@@ -602,9 +702,12 @@ export default {
       this.validVote = this.$refs.form.validate();
       if (this.validVote) {
         this.voteLoading = true;
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        const [error, response] = await to(
+          axios.post(emailCloudFnUrl, { email: this.voteEmail })
+        );
         this.voteLoading = false;
-        this.doneVote = true;
+        if (error) this.voteError = true;
+        else this.doneVote = true;
       }
     },
   },
@@ -617,11 +720,19 @@ export default {
     finishLoading() {
       if (this.finishLoading) {
         setTimeout(() => (this.showCatchline = true), 4000);
-        setTimeout(() => (this.showGroups = true), 0 /* 5500 */);
+        setTimeout(() => (this.showGroups = true), 0 * 5500);
+        setTimeout(() => (this.showVoteButton = true), 0 * 7500);
       }
     },
     showGroupVideo() {
-      if (!this.showGroupVideo) this.selectedGroup = {};
+      if (!this.showGroupVideo) {
+        setTimeout(() => (this.selectedGroup = {}), 500);
+      }
+    },
+    showVoteDialog() {
+      if (!this.showVoteDialog) {
+        setTimeout(() => (this.voteError = false), 500);
+      }
     },
   },
 };

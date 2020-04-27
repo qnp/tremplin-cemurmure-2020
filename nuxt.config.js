@@ -19,7 +19,7 @@ export default {
       {
         name: 'viewport',
         content:
-          'width=device-width,initial-scale=1.0,maximum-scale=3.0,user-scalable=yes',
+          'width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no',
       },
       // favicons
       { name: 'msapplication-TileColor', content: '#d5dbe5' },

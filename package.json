@@ -11,6 +11,8 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "await-to-js": "^2.1.1",
+    "axios": "^0.19.2",
     "nuxt": "^2.0.0",
     "vue-social-sharing": "^2.4.7"
   },
