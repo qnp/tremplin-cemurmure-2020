@@ -45,10 +45,13 @@
         .dialog__control__text suivant
         .dialog__control__group {{ nextGroup.name }}
 
-      v-card.group__dialog(color="accent")
+      v-card.group__dialog(color="accent" dark)
         v-card-title.dialog__group-name.primary.accent--text {{ selectedGroup.name }}
           v-btn.dialog__close(icon absolute @click="showGroupVideo = false")
             v-icon mdi-close
+        v-card-text.group__description(ref="groupDescription")
+          b.white--text {{ selectedGroup.styles ? selectedGroup.styles.join(', ') : '' }}&nbsp;–&nbsp;
+          span(v-html="selectedGroup.description")
         youtube-video(:width="videoWidth" :height="videoHeight" :code="selectedGroup.code")
 
     v-dialog(v-model="showVoteDialog" width="580")
@@ -99,9 +102,12 @@
         template(v-else-if="doneVote && !voteError")
           v-card-text.dialog__thank-you
             h1.primary--text.mt-12.mb-4 Merci !
-            p.mb-12 Les résultats du vote seront annoncés le xxx sur Facebook.
+            h3.mt-8.mb-4
+              span.secondary--text Vérifiez votre boîte mail
+            h4 Nous vous avons envoyé un mail de confirmation. N’oubliez pas de cliquer sur le lien pour valider votre vote afin qu’il soit comptabilisé.
+            p.mt-4.mb-12 Les résultats du vote seront annoncés le xxx sur Facebook.
             p.white--text Partagez ce tremplin
-            social-sharing(url='https://vuejs.org/' inline-template)
+            social-sharing.mb-6(url='https://vuejs.org/' inline-template)
               .dialog__social-sharing
                 network(network='facebook')
                   v-btn(icon color="primary")
@@ -114,12 +120,15 @@
                     v-icon mdi-whatsapp
             v-btn(icon color="primary" :href="shareMailto")
               v-icon mdi-email
+            p Vous pouvez aussi&nbsp;
+            a(href="https://www.helloasso.com/associations/association-raspatakouet-promotion-de-la-culture-en-milieu-rural/adhesions/formulaire-d-adhesion-a-l-association-raspatakouet" target="_blank" rel="noopener")
+              p faire un don à l’asso
 
         template(v-else)
           v-card-text.dialog__error.secondary__text
-            p.mt-5 Une erreur est survenue
-              v-icon.ml-1(color="secondary") mdi-emoticon-sad
-              |... veuillez réessayer plus tard ou nous contacter sur <a href="https://www.facebook.com/cemurmure">facebook</a> ou par <a href="mailto:raspatakouet@gmail.com">email</a>
+            p.mt-5 {{ alreadyVoted ? 'Vous avez déjà vôté avec cette adresse' : 'Une erreur est survenue' }}
+              v-icon.ml-1(color="secondary") {{ alreadyVoted ? 'mdi-emoticon-kiss' : 'mdi-emoticon-sad' }}
+              span(v-if="!alreadyVoted") ... veuillez réessayer plus tard ou nous contacter sur <a href="https://www.facebook.com/cemurmure">facebook</a> ou par <a href="mailto:raspatakouet@gmail.com">email</a>
 
 </template>
 
@@ -352,6 +361,15 @@ select:-webkit-autofill:focus
 .dialog__group-name
   justify-content center
 
+.v-dialog > .v-card > .v-card__text.group__description
+  padding-top 24px
+
+  @media (max-width: 460px)
+    padding-top 18px
+    font-size 11px
+    max-height 160px
+    overflow scroll
+
 .dialog__close
   right 12px
   top 11px
@@ -580,14 +598,15 @@ function encode(str) {
   }
 }
 
-const emailCloudFnUrlDev =
-  'http://localhost:5001/ce-murmure-festival/europe-west1/sendVoteEmail';
-const emailCloudFnUrlProd =
-  'http://localhost:5001/ce-murmure-festival/europe-west1/sendVoteEmail';
-const emailCloudFnUrl =
-  process.env.NODE_ENV === 'production'
-    ? emailCloudFnUrlProd
-    : emailCloudFnUrlDev;
+const IS_DEV = process.env.NODE_ENV === 'development';
+const REGION = 'europe-west1';
+const PROJECT = 'ce-murmure-festival';
+const FUNCTION_NAME = 'voteTremplin2020';
+const CLOUD_FUNCTION_URL = IS_DEV
+  ? `http://localhost:5001/${PROJECT}/${REGION}/${FUNCTION_NAME}`
+  : `https://${REGION}-${PROJECT}.cloudfunctions.net/${FUNCTION_NAME}`;
+
+const emailCloudFnUrl = CLOUD_FUNCTION_URL + '/vote';
 
 const shareMailto =
   'mailto:?subject=' +
@@ -619,9 +638,27 @@ export default {
       videoWidth: 600,
       videoHeight: 300,
       groups: [
-        { name: 'Electrik Cellar', code: '2e8x3fFZP3Q' },
-        { name: 'San-Seyha', code: 'iPGgnzc34tY' },
-        { name: 'The Boys Friends', code: 'Tj2m42KEHwo' },
+        {
+          name: 'Electrik Cellar',
+          code: '5uAjhrlTEFg',
+          styles: ['Rock'],
+          description:
+            'Sorti tout droit d’une cave humide et sombre, le trio Auxerrois d’<span class="primary--text">Electrik Cellar</span> remonte à la surface terrestre pour partager un rock brut, sauvage, psychédélique et aérien. Leur isolement nourri à coups de guitares venues tout droit du désert californien, de basses lourdes et de batteries hypnotiques sont complétées par un mélange de voix aux mélodies Anglo-saxonnes.',
+        },
+        {
+          name: 'San-Seyha',
+          code: '9QN-PzN5qKs',
+          styles: ['Chanson'],
+          description:
+            '<span class="primary--text">San-Seyha</span> questionne son identité à travers l’exil, qu’il soit géographique ou existentiel, et nous embarque dans une traversée entre chant, slam et poésie. Sa voix est sincère et contagieuse et la musique accomplit le reste du voyage. Avec Vincent Loyer (machines/basse) et Damien Saint-Loup (guitare, oud, choeurs), pour une atmosphère citadine, mécanique et envoûtante et des mélodies électriques et puissantes.',
+        },
+        {
+          name: 'The Boys Friends',
+          code: 'AZLsy70g--4',
+          styles: ['Rock', 'Jazz', 'Pop'],
+          description:
+            'Slook, Pippin, Lapin et Jamo ont uni leurs humours et leurs passions de la musique afin de créer le goupe <span class="primary--text">The Boys Friends</span>. Groupe atypique, dont le but est de magnifier vos tubes préférés des années 70s, 80s en allant même jusqu’aux années 90s. C’est avec un set totalement acoustique que nous nous produisons tout en mêlant humour, ambiance et chanson. Jazz, Blues, Folk, Rock, Bossa, etc... il y en aura pour tout les goûts.',
+        },
       ],
       showVoteButton: false,
       showVoteDialog: false,
@@ -633,6 +670,7 @@ export default {
         v => emailRegex.test(v) || 'Format d’email invalide',
       ],
       voteLoading: false,
+      alreadyVoted: false,
       voteError: false,
       doneVote: false,
       shareMailto,
@@ -689,8 +727,15 @@ export default {
     showGroup(group) {
       this.showGroupVideo = true;
       this.selectedGroup = group;
-      this.videoWidth = window.innerWidth - 48;
-      this.videoHeight = window.innerHeight - 48 - 58 * 2;
+      setTimeout(() => {
+        this.videoWidth = window.innerWidth - 48;
+        const descElem = this.$refs.groupDescription;
+        if (!descElem) this.videoHeight = window.innerHeight - 48 - 58 * 3;
+        else {
+          const rect = descElem.getBoundingClientRect();
+          this.videoHeight = window.innerHeight - 48 - 58 * 2 - rect.height;
+        }
+      }, 250);
     },
     prev() {
       this.selectedGroup = this.prevGroup;
@@ -703,11 +748,19 @@ export default {
       if (this.validVote) {
         this.voteLoading = true;
         const [error, response] = await to(
-          axios.post(emailCloudFnUrl, { email: this.voteEmail })
+          axios.post(
+            emailCloudFnUrl,
+            { email: this.voteEmail, group: this.votedGroup },
+            { timeout: 10000 }
+          )
         );
         this.voteLoading = false;
-        if (error) this.voteError = true;
-        else this.doneVote = true;
+        if (error) {
+          if (error.response && error.response.status === 409) {
+            this.alreadyVoted = true;
+          }
+          this.voteError = true;
+        } else this.doneVote = true;
       }
     },
   },
@@ -731,7 +784,10 @@ export default {
     },
     showVoteDialog() {
       if (!this.showVoteDialog) {
-        setTimeout(() => (this.voteError = false), 500);
+        setTimeout(() => {
+          this.voteError = false;
+          this.alreadyVoted = false;
+        }, 500);
       }
     },
   },
