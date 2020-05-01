@@ -1,5 +1,10 @@
 import colors from "vuetify/es5/util/colors";
 
+const title = 'Tremplin - Ce Murmure Festival – Édition 2020';
+const description = 'Votez pour le Tremplin de l’édition 2020 du festival Ce Murmure !';
+const url = 'https://tremplin2020.cemurmurefestival.com';
+const image = url + '/images/share.jpg';
+
 export default {
   mode: "universal",
   /*
@@ -13,7 +18,7 @@ export default {
    * Headers of the page
    */
   head: {
-    title: 'Tremplin 2020 - Cemurmure Festival',
+    title: title,
     meta: [
       { charset: 'utf-8' },
       {
@@ -24,6 +29,18 @@ export default {
       // favicons
       { name: 'msapplication-TileColor', content: '#d5dbe5' },
       { name: 'theme-color', content: '#ffc61c' },
+      // SEO
+      { name: 'description', content: description },
+      { name: 'keywords', content: 'tremplin, ce murmure festival, cemurmure, festival, 2020, édition 2020, concerts, online, covid, covid-19' },
+      { property: 'og:title', content: title },
+      { property: 'og:description', content: description },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: url },
+      { property: 'og:image', content: image },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: title },
+      { name: 'twitter:description', content: description },
+      { name: 'twitter:image:src', content: image },
     ],
     link: [
       // favicons
