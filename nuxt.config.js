@@ -1,7 +1,7 @@
 import colors from "vuetify/es5/util/colors";
 
-const title = 'Tremplin - Ce Murmure Festival – Édition 2020';
-const description = 'Votez pour le Tremplin de l’édition 2020 du festival Ce Murmure !';
+const title = 'Tremplin - Ce Murmure Festival – Édition du 21-22 Août 2020';
+const description = 'Votez pour le Tremplin de l’édition du 21-22 Août 2020 du festival Ce Murmure !';
 const url = 'https://tremplin2020.cemurmurefestival.com';
 const image = url + '/images/share.jpg';
 
@@ -31,7 +31,7 @@ export default {
       { name: 'theme-color', content: '#ffc61c' },
       // SEO
       { name: 'description', content: description },
-      { name: 'keywords', content: 'tremplin, ce murmure festival, cemurmure, festival, 2020, édition 2020, concerts, online, covid, covid-19' },
+      { name: 'keywords', content: 'tremplin, ce murmure festival, cemurmure, festival, 21, 22, Août, 21-22 Août, 2020, édition 2020, concerts, online, covid, covid-19' },
       { property: 'og:title', content: title },
       { property: 'og:description', content: description },
       { property: 'og:type', content: 'website' },

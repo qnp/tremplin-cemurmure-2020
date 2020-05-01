@@ -5,7 +5,7 @@
       .flyer-pink-glow
       .flyer-groups(:class="{ 'flyer-groups--show': showGroups }")
         template(v-for="group in groups")
-          .flyer-group(@click="showGroup(group)")
+          .flyer-group(tabindex="0" @keypress.enter.space="showGroup(group)" @click="showGroup(group)")
             .flyer-group__container
               span {{ group.name }}
               v-icon.ml-3(v-if="!voteClosed" color="accent") mdi-youtube
@@ -23,7 +23,7 @@
         .flyer-title__tremplin
           text-animation(:start-delay="2.5" :stagger-delay="0.2" mode="to-center" reverse) LE TREMPLIN
         .flyer-title__catchline(:class="{ show: showCatchline }")
-          span(v-if="!voteClosed") <b>Écoutez</b>, <b class="emph-text">votez</b> et élisez le gagant pour l’édition&nbsp;<b>2020</b>&nbsp;!
+          span(v-if="!voteClosed") <b>Écoutez</b>, <b class="emph-text">votez</b> et élisez le gagant pour<br/>l’édition du&nbsp;<b>21-22 Août 2020</b>&nbsp;!
           template(v-else)
             p Les votes sont terminés ! Le grand gagnant est
             h3 {{ groups[0].name }}
@@ -308,6 +308,7 @@ b
     left 50%
     transform translateX(-50%)
     width 100%
+    pointer-events none
 
   .flyer-title__cemurmure
     font-size 20px
@@ -355,7 +356,10 @@ b
       transform-origin 100% 50%
       transition transform 0.1s $bounce
 
-      &:hover
+    &:hover, &:focus
+      outline none
+
+      .flyer-group__container
         background-color $color-primary
         transform scale(1.07)
 
@@ -494,6 +498,28 @@ b
 
 .dialog__social-sharing
   display inline-block
+
+@media (max-height: 800px)
+  .scene
+    .flyer-title
+      height 168px
+
+    .flyer-title__cemurmure
+      font-size 18px
+
+    .flyer-title__presente
+      font-size 14px
+
+    .flyer-title__tremplin
+      margin-top 8px
+      make-title(50px)
+
+    .flyer-title__catchline
+      margin-top 4px
+      font-size 14px
+
+    .flyer-image-sun
+      make-sun(0.85 * $sun-size)
 
 @media (max-width: 760px)
   .scene
