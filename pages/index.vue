@@ -133,6 +133,7 @@
 </template>
 
 <style lang="stylus">
+@import '../assets/font.styl'
 /*
  * variables
  */
