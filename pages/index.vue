@@ -101,23 +101,19 @@
 
         template(v-else-if="doneVote && !voteError")
           v-card-text.dialog__thank-you
-            h1.primary--text.mt-12.mb-4 Merci !
+            h1.primary--text.mt-6.mb-4 Merci !
             h3.mt-8.mb-4
               span.secondary--text Vérifiez votre boîte mail
             h4 Nous vous avons envoyé un mail de confirmation. N’oubliez pas de cliquer sur le lien pour valider votre vote afin qu’il soit comptabilisé.
-            p.mt-4.mb-12 Les résultats du vote seront annoncés le xxx sur Facebook.
+            p.mt-4.mb-12 Les résultats du vote seront annoncés le 17 mai sur notre <a href="https://www.facebook.com/cemurmure" target="_blank" rel="noopener">page Facebook</a>.
             p.white--text Partagez ce tremplin
-            social-sharing.mb-6(url='https://vuejs.org/' inline-template)
-              .dialog__social-sharing
-                network(network='facebook')
-                  v-btn(icon color="primary")
-                    v-icon mdi-facebook
-                network(network='twitter')
-                  v-btn(icon color="primary")
-                    v-icon mdi-twitter
-                network(network='whatsapp')
-                  v-btn(icon color="primary")
-                    v-icon mdi-whatsapp
+            .dialog__social-sharing.mb-6
+              v-btn(icon color="primary" @click="share('facebook')")
+                v-icon mdi-facebook
+              v-btn(icon color="primary" @click="share('twitter')")
+                v-icon mdi-twitter
+              v-btn(icon color="primary" @click="share('whatsapp')")
+                v-icon mdi-whatsapp
             v-btn(icon color="primary" :href="shareMailto")
               v-icon mdi-email
             p Vous pouvez aussi&nbsp;
@@ -675,11 +671,59 @@ export default {
       voteError: false,
       doneVote: false,
       shareMailto,
+      networks: {
+        twitter: 'https://twitter.com/intent/tweet?text=@title&url=@url',
+        facebook: 'https://www.facebook.com/sharer/sharer.php?u=@url&title=@title&description=@description', // prettier-ignore
+        whatsapp: 'https://api.whatsapp.com/send?text=@description%0D%0A@url',
+      },
+      title: encodeURIComponent(
+        'Votez pour le Tremplin – Ce Murmurmure Festival – Édition 2020'
+      ),
+      description: encodeURIComponent(
+        'Votez pour le Tremplin – Ce Murmurmure Festival – Édition 2020'
+      ),
+      popup: {
+        status: false,
+        resizable: true,
+        toolbar: false,
+        menubar: false,
+        scrollbars: false,
+        location: false,
+        directories: false,
+        width: 626,
+        height: 436,
+        top: 0,
+        left: 0,
+        window: undefined,
+        interval: null,
+      },
     };
   },
   mounted() {
     this.load();
     setTimeout(() => this.loadedImages++, fakeLoadingDelay);
+    /**
+     * Center the popup on dual screens
+     * http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen/32261263
+     */
+    const dualScreenLeft =
+      window.screenLeft !== undefined ? window.screenLeft : screen.left;
+    const dualScreenTop =
+      window.screenTop !== undefined ? window.screenTop : screen.top;
+
+    const width = window.innerWidth
+      ? window.innerWidth
+      : document.documentElement.clientWidth
+      ? document.documentElement.clientWidth
+      : screen.width;
+    const height = window.innerHeight
+      ? window.innerHeight
+      : document.documentElement.clientHeight
+      ? document.documentElement.clientHeight
+      : screen.height;
+
+    this.popup.left = width / 2 - this.popup.width / 2 + dualScreenLeft;
+    this.popup.top = height / 2 - this.popup.height / 2 + dualScreenTop;
   },
   computed: {
     loadProgress() {
@@ -763,6 +807,52 @@ export default {
           this.voteError = true;
         } else this.doneVote = true;
       }
+    },
+    openSharer(url) {
+      // If a popup window already exist it will be replaced, trigger a close event.
+      let popupWindow = null;
+      if (popupWindow && this.popup.interval) {
+        clearInterval(this.popup.interval);
+        popupWindow.close(); // Force close (for Facebook)
+      }
+
+      popupWindow = window.open(
+        url,
+        'sharer',
+        /* prettier-ignore */
+        'status=' + (this.popup.status ? 'yes' : 'no') +
+        ',height=' + this.popup.height +
+        ',width=' + this.popup.width +
+        ',resizable=' + (this.popup.resizable ? 'yes' : 'no') +
+        ',left=' + this.popup.left +
+        ',top=' + this.popup.top +
+        ',screenX=' + this.popup.left +
+        ',screenY=' + this.popup.top +
+        ',toolbar=' + (this.popup.toolbar ? 'yes' : 'no') +
+        ',menubar=' + (this.popup.menubar ? 'yes' : 'no') +
+        ',scrollbars=' + (this.popup.scrollbars ? 'yes' : 'no') +
+        ',location=' + (this.popup.location ? 'yes' : 'no') +
+        ',directories=' + (this.popup.directories ? 'yes' : 'no')
+      );
+
+      popupWindow.focus();
+
+      // Create an interval to detect popup closing event
+      this.popup.interval = setInterval(() => {
+        if (!popupWindow || popupWindow.closed) {
+          clearInterval(this.popup.interval);
+          popupWindow = undefined;
+        }
+      }, 500);
+    },
+    share(network) {
+      const siteUrl = encodeURIComponent(window.location.href);
+      if (!this.networks[network]) return;
+      const shareUrl = this.networks[network]
+        .replace('@url', siteUrl)
+        .replace('@title', this.title)
+        .replace('@description', this.description);
+      this.openSharer(shareUrl);
     },
   },
   watch: {
