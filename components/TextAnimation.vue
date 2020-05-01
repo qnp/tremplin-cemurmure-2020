@@ -5,6 +5,7 @@
 
 <style lang="stylus">
 .text-animation
+  white-space pre
   display inline-block
 
   > span

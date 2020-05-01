@@ -1,6 +1,6 @@
 <template lang="pug">
   v-layout.main
-    v-layout.scene(:class="sceneClass")
+    .scene(:class="sceneClass")
       .flyer-color-layer
       .flyer-pink-glow
       .flyer-groups(:class="{ 'flyer-groups--show': showGroups }")
@@ -8,7 +8,10 @@
           .flyer-group(@click="showGroup(group)")
             .flyer-group__container
               span {{ group.name }}
-              v-icon.ml-3(color="accent") mdi-youtube
+              v-icon.ml-3(v-if="!voteClosed" color="accent") mdi-youtube
+              template(v-else)
+                span.mx-1 –
+                b(v-html="ladderText(group.name)")
       .flyer-image-sun
       .flyer-image-water
       .flyer-image-tremplin
@@ -19,24 +22,28 @@
           text-animation(:start-delay="1") présente
         .flyer-title__tremplin
           text-animation(:start-delay="2.5" :stagger-delay="0.2" mode="to-center" reverse) LE TREMPLIN
-        .flyer-title__catchline(:class="{ show: showCatchline }") <b>Écoutez</b>, <b class="emph-text">votez</b> et élisez le gagant pour l’édition&nbsp;<b>2020</b>&nbsp;!
+        .flyer-title__catchline(:class="{ show: showCatchline }")
+          span(v-if="!voteClosed") <b>Écoutez</b>, <b class="emph-text">votez</b> et élisez le gagant pour l’édition&nbsp;<b>2020</b>&nbsp;!
+          template(v-else)
+            p Les votes sont terminés ! Le grand gagnant est
+            h3 {{ groups[0].name }}
 
       v-btn.vote__button(
+        v-if="!voteClosed"
         color="primary"
         x-large
         @click="showVoteDialog = true"
-        :disabled="doneVote"
         :class="{ 'vote__button--show': showVoteButton }"
       )
-        .vote__button__text {{ doneVote ? 'VOTÉ' : 'VOTER' }}
-        v-icon.ml-2 {{ doneVote ? 'mdi-check' : 'mdi-vote' }}
+        .vote__button__text VOTER
+        v-icon.ml-2 mdi-vote
 
     transition(name="t-fade-out")
       v-layout.loader(v-if="loading")
         v-progress-linear.loader__progress(:value="loadProgress" height="8")
         .loader__text(v-if="loading") Chargement
 
-    v-dialog(v-model="showGroupVideo")
+    template(v-if="showGroupVideo")
       .dialog__control.dialog__control--prev(v-if="prevGroup" @click="prev")
         .dialog__control__text précédent
         .dialog__control__group {{ prevGroup.name }}
@@ -45,6 +52,7 @@
         .dialog__control__text suivant
         .dialog__control__group {{ nextGroup.name }}
 
+    v-dialog(v-model="showGroupVideo")
       v-card.group__dialog(color="accent" dark)
         v-card-title.dialog__group-name.primary.accent--text {{ selectedGroup.name }}
           v-btn.dialog__close(icon absolute @click="showGroupVideo = false")
@@ -198,15 +206,21 @@ select:-webkit-autofill:focus
   transition background-color 5000s ease-in-out 0s
 
 .v-dialog > .v-card > .v-card__text
-  padding 24px 48px
+  padding 24px 48px !important
+
+.v-dialog
+  overflow visible !important
+
+b
+  font-weight 900
 
 .emph-text
   color $color-accent
-  font-family 'FashionFetishHeavy'
+  font-weight 900
 
 // main
 .main, .v-application
-  font-family 'FashionFetish'
+  font-family 'FashionFetish', Helvetica, sans-serif
 
 // loader
 .loader
@@ -233,7 +247,7 @@ select:-webkit-autofill:focus
 
 .loader__progress
   position absolute
-  bottom 0
+  top 0
 
 // scene
 .scene
@@ -241,6 +255,7 @@ select:-webkit-autofill:focus
   background-image url('/images/sky.jpg')
   background-position 0% 0%
   background-size cover
+  overflow hidden
 
   .flyer-color-layer
     absolute-full()
@@ -285,10 +300,14 @@ select:-webkit-autofill:focus
     animation-play-state paused
 
   .flyer-title
-    margin 24px auto 0
+    margin-top 24px
     z-index 2
     text-align center
     height 260px
+    position absolute
+    left 50%
+    transform translateX(-50%)
+    width 100%
 
   .flyer-title__cemurmure
     font-size 20px
@@ -366,10 +385,10 @@ select:-webkit-autofill:focus
   justify-content center
 
 .v-dialog > .v-card > .v-card__text.group__description
-  padding-top 24px
+  padding-top 24px !important
 
   @media (max-width: 460px)
-    padding-top 18px
+    padding-top 18px !important
     font-size 11px
     max-height 160px
     overflow scroll
@@ -381,13 +400,14 @@ select:-webkit-autofill:focus
 .dialog__control
   width auto
   position fixed
-  top 50%
-  z-index 2
+  top calc(100% - 80px)
+  z-index 900
   color $color-accent
   background-color $color-primary
   transition transform 0.1s $bounce
   padding 8px
   cursor pointer
+  box-shadow 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
 
   &:hover
     background-color $color-primary
@@ -412,16 +432,17 @@ select:-webkit-autofill:focus
 
 // vote
 .v-btn
-  font-family 'FashionFetishHeavy'
-  font-weight 900
+  font-weight 900 !important
   color $color-accent !important
 
   .v-btn__content
     display flex
     text-align center
 
-.vote__button
+.v-btn.vote__button
   position absolute
+
+.vote__button
   right 24px
   bottom calc(17% + 24px)
   opacity 0
@@ -524,19 +545,33 @@ select:-webkit-autofill:focus
 
   .dialog__control
     top calc(100% - 64px)
-    box-shadow 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
 
   .v-dialog > .v-card.vote__dialog > .v-card__title
     font-size 16px
 
   .v-dialog > .v-card > .v-card__text
-    padding 0 24px 18px
+    padding 0 24px 18px !important
 
   .vote__email
     font-size 12px
 
 @media (max-width: 370px)
   .scene
+    .flyer-title
+      margin-top 16px
+
+    .flyer-title__cemurmure
+      font-size 14px
+
+    .flyer-title__tremplin
+      margin-top 12px
+      line-height 1
+
+    .flyer-title__catchline
+      p
+        font-size 80%
+        margin-bottom 4px
+
     .flyer-image-sun
       left 7%
 
@@ -619,7 +654,8 @@ const shareMailto =
   '&body=' +
   encode(shareEmailBody);
 
-const fakeLoadingDelay = 0 * 1500;
+const k = 1;
+const fakeLoadingDelay = k * 1500;
 
 export default {
   components: {
@@ -631,6 +667,7 @@ export default {
       showCatchline: false,
       finishLoading: false,
       loadedImages: 0,
+      extraLoadSteps: 1,
       showGroups: false,
       imageSources: [
         '/images/sky.jpg',
@@ -647,6 +684,7 @@ export default {
           name: 'Electrik Cellar',
           code: '5uAjhrlTEFg',
           styles: ['Rock'],
+          votes: 0,
           description:
             'Sorti tout droit d’une cave humide et sombre, le trio Auxerrois d’<span class="primary--text">Electrik Cellar</span> remonte à la surface terrestre pour partager un rock brut, sauvage, psychédélique et aérien. Leur isolement nourri à coups de guitares venues tout droit du désert californien, de basses lourdes et de batteries hypnotiques sont complétées par un mélange de voix aux mélodies Anglo-saxonnes.',
         },
@@ -654,6 +692,7 @@ export default {
           name: 'San-Seyha',
           code: '9QN-PzN5qKs',
           styles: ['Chanson'],
+          votes: 0,
           description:
             '<span class="primary--text">San-Seyha</span> questionne son identité à travers l’exil, qu’il soit géographique ou existentiel, et nous embarque dans une traversée entre chant, slam et poésie. Sa voix est sincère et contagieuse et la musique accomplit le reste du voyage. Avec Vincent Loyer (machines/basse) et Damien Saint-Loup (guitare, oud, choeurs), pour une atmosphère citadine, mécanique et envoûtante et des mélodies électriques et puissantes.',
         },
@@ -661,6 +700,7 @@ export default {
           name: 'The Boys Friends',
           code: 'AZLsy70g--4',
           styles: ['Rock', 'Jazz', 'Pop'],
+          votes: 0,
           description:
             'Slook, Pippin, Lapin et Jamo ont uni leurs humours et leurs passions de la musique afin de créer le goupe <span class="primary--text">The Boys Friends</span>. Groupe atypique, dont le but est de magnifier vos tubes préférés des années 70s, 80s en allant même jusqu’aux années 90s. C’est avec un set totalement acoustique que nous nous produisons tout en mêlant humour, ambiance et chanson. Jazz, Blues, Folk, Rock, Bossa, etc... il y en aura pour tout les goûts.',
         },
@@ -709,6 +749,7 @@ export default {
         window: undefined,
         interval: null,
       },
+      voteClosed: false,
     };
   },
   mounted() {
@@ -736,10 +777,16 @@ export default {
 
     this.popup.left = width / 2 - this.popup.width / 2 + dualScreenLeft;
     this.popup.top = height / 2 - this.popup.height / 2 + dualScreenTop;
+
+    // set ladder if vote closed
+    if (this.voteClosed) this.setLadder();
   },
   computed: {
     loadProgress() {
-      return (this.loadedImages / (this.imageSources.length + 1)) * 100;
+      return (
+        (this.loadedImages / (this.imageSources.length + this.extraLoadSteps)) *
+        100
+      );
     },
     sceneClass() {
       return !this.loading ? 'scene--started' : null;
@@ -747,7 +794,8 @@ export default {
     loading() {
       // return false;
       return (
-        !this.finishLoading || this.loadedImages < this.imageSources.length + 1
+        !this.finishLoading ||
+        this.loadedImages < this.imageSources.length + this.extraLoadSteps
       );
     },
     prevGroup() {
@@ -806,7 +854,7 @@ export default {
         this.voteLoading = true;
         const [error, response] = await to(
           axios.post(
-            emailCloudFnUrl,
+            voteCloudFnUrl,
             { email: this.voteEmail, group: this.votedGroup },
             { timeout: 10000 }
           )
@@ -886,6 +934,25 @@ export default {
         .replace('@description', this.description);
       this.openSharer(shareUrl);
     },
+    setLadder() {
+      this.groups.sort((groupA, groupB) => {
+        if (groupA.votes > groupB.votes) return -1;
+        else if (groupA.votes < groupB.votes) return 1;
+        else return 0;
+      });
+    },
+    ladderText(groupName) {
+      const number =
+        this.groups.findIndex(({ name }) => name === groupName) + 1;
+      switch (number) {
+        case 1:
+          return '1<sup>er</sup>';
+        case 2:
+          return '2<sup>e</sup>';
+        case 3:
+          return '3<sup>e</sup>';
+      }
+    },
   },
   watch: {
     loadedImages() {
@@ -896,8 +963,8 @@ export default {
     finishLoading() {
       if (this.finishLoading) {
         setTimeout(() => (this.showCatchline = true), 4000);
-        setTimeout(() => (this.showGroups = true), 0 * 5500);
-        setTimeout(() => (this.showVoteButton = true), 0 * 7500);
+        setTimeout(() => (this.showGroups = true), k * 5500);
+        setTimeout(() => (this.showVoteButton = true), k * 7500);
       }
     },
     showGroupVideo() {
