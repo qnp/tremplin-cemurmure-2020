@@ -56,7 +56,7 @@
 
     v-dialog(v-model="showVoteDialog" width="580")
       v-card.vote__dialog(color="accent" dark)
-        v-card-title.secondary.justify-center.accent--text {{ voteError ? 'Erreur' : doneVote ? 'Vous avez voté' : $vuetify.breakpoint.xs ? 'Votez' : 'Votez pour votre groupe préféré' }}
+        v-card-title.secondary.justify-center.accent--text {{ voteError ? butNotConfirmed ? 'Attention' : 'Erreur' : doneVote ? 'Vous avez voté' : $vuetify.breakpoint.xs ? 'Votez' : 'Votez pour votre groupe préféré' }}
           v-btn.dialog__close(icon absolute @click="showVoteDialog = false" color="accent")
             v-icon mdi-close
         template(v-if="!doneVote && !voteError")
@@ -122,9 +122,16 @@
 
         template(v-else)
           v-card-text.dialog__error.secondary__text
-            p.mt-5 {{ alreadyVoted ? 'Vous avez déjà vôté avec cette adresse' : 'Une erreur est survenue' }}
-              v-icon.ml-1(color="secondary") {{ alreadyVoted ? 'mdi-emoticon-kiss' : 'mdi-emoticon-sad' }}
+            p.mt-5(:class="{ 'white--text': butNotConfirmed }") {{ alreadyVoted ? 'Vous avez déjà vôté avec cette adresse' : 'Une erreur est survenue' }}
+              v-icon.ml-1(v-if="!butNotConfirmed" color="secondary") {{ alreadyVoted ? 'mdi-emoticon-kiss' : 'mdi-emoticon-sad' }}
               span(v-if="!alreadyVoted") ... veuillez réessayer plus tard ou nous contacter sur <a href="https://www.facebook.com/cemurmure">facebook</a> ou par <a href="mailto:raspatakouet@gmail.com">email</a>
+              span(v-if="butNotConfirmed") &nbsp;mais votre vote n’a pas été confirmé. Avez-vous cliqué sur le lien reçu dans l’email de confirmation ?
+            template(v-if="butNotConfirmed")
+              small.mb-2 Rien reçu ? Vérifiez vos spam ou
+              v-btn(small color="primary" text :loading="resendEmailLoading" @click="resendEmail" :disabled="resendEmailOk")
+                span Renvoyer l’email
+                v-icon.ml-1(v-if="resendEmailOk") mdi-check
+
 
 </template>
 
@@ -595,15 +602,16 @@ function encode(str) {
   }
 }
 
-const IS_DEV = process.env.NODE_ENV === 'development';
+const DEV_CLOUD_FUNCTION = false;
 const REGION = 'europe-west1';
 const PROJECT = 'ce-murmure-festival';
 const FUNCTION_NAME = 'voteTremplin2020';
-const CLOUD_FUNCTION_URL = IS_DEV
+const CLOUD_FUNCTION_URL = DEV_CLOUD_FUNCTION
   ? `http://localhost:5001/${PROJECT}/${REGION}/${FUNCTION_NAME}`
   : `https://${REGION}-${PROJECT}.cloudfunctions.net/${FUNCTION_NAME}`;
 
-const emailCloudFnUrl = CLOUD_FUNCTION_URL + '/vote';
+const voteCloudFnUrl = CLOUD_FUNCTION_URL + '/vote';
+const resendEmailCloudFnUrl = CLOUD_FUNCTION_URL + '/resendEmail';
 
 const shareMailto =
   'mailto:?subject=' +
@@ -668,9 +676,13 @@ export default {
       ],
       voteLoading: false,
       alreadyVoted: false,
+      butNotConfirmed: false,
       voteError: false,
       doneVote: false,
       shareMailto,
+      resendEmailLoading: false,
+      resendEmailOk: false,
+      // share
       networks: {
         twitter: 'https://twitter.com/intent/tweet?text=@title&url=@url',
         facebook: 'https://www.facebook.com/sharer/sharer.php?u=@url&title=@title&description=@description', // prettier-ignore
@@ -804,8 +816,28 @@ export default {
           if (error.response && error.response.status === 409) {
             this.alreadyVoted = true;
           }
+          if (error.response && error.response.status === 418) {
+            this.alreadyVoted = true;
+            this.butNotConfirmed = true;
+          }
           this.voteError = true;
         } else this.doneVote = true;
+      }
+    },
+    async resendEmail() {
+      this.resendEmailLoading = true;
+      const [error, response] = await to(
+        axios.post(
+          resendEmailCloudFnUrl,
+          { email: this.voteEmail, group: this.votedGroup },
+          { timeout: 10000 }
+        )
+      );
+      this.resendEmailLoading = false;
+      if (error) this.voteError = true;
+      else {
+        this.voteError = false;
+        this.doneVote = true;
       }
     },
     openSharer(url) {
@@ -876,8 +908,10 @@ export default {
     showVoteDialog() {
       if (!this.showVoteDialog) {
         setTimeout(() => {
+          this.doneVote = false;
           this.voteError = false;
           this.alreadyVoted = false;
+          this.butNotConfirmed = false;
         }, 500);
       }
     },
