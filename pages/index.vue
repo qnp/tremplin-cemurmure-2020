@@ -112,7 +112,7 @@
             h1.primary--text.mt-6.mb-4 Merci !
             h3.mt-8.mb-4
               span.secondary--text Vérifiez votre boîte mail
-            h4 Nous vous avons envoyé un mail de confirmation. N’oubliez pas de cliquer sur le lien pour valider votre vote afin qu’il soit comptabilisé.
+            h4 Nous vous avons envoyé un mail de confirmation. N’oubliez pas de cliquer sur le lien pour valider votre vote afin qu’il soit comptabilisé. Si vous n’avez rien reçu, <span class="white--text"> pensez à verifier vos <i>spams</i></span> (courier indésiable).
             p.mt-4.mb-12 Les résultats du vote seront annoncés le 17 mai sur notre <a href="https://www.facebook.com/cemurmure" target="_blank" rel="noopener">page Facebook</a>.
             p.white--text Partagez ce tremplin
             .dialog__social-sharing.mb-6
