@@ -23,7 +23,7 @@
         .flyer-title__tremplin
           text-animation(:start-delay="2.5" :stagger-delay="0.2" mode="to-center" reverse) LE TREMPLIN
         .flyer-title__catchline(:class="{ show: showCatchline }")
-          span(v-if="!voteClosed") <b>Écoutez</b>, <b class="emph-text">votez</b> et élisez le gagant pour<br/>l’édition du&nbsp;<b>21-22 Août 2020</b>&nbsp;!
+          span(v-if="!voteClosed") <b>Écoutez</b>, <b class="emph-text">votez</b> et élisez le gagnant pour<br/>l’édition du&nbsp;<b>21-22 Août 2020</b>&nbsp;!
           template(v-else)
             p Les votes sont terminés ! Le grand gagnant est
             h3 {{ groups[0].name }}
