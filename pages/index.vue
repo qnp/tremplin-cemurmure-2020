@@ -710,7 +710,7 @@ export default {
           name: 'Electrik Cellar',
           code: '5uAjhrlTEFg',
           styles: ['Rock'],
-          votes: 0,
+          votes: 47,
           description:
             'Sorti tout droit d’une cave humide et sombre, le trio Auxerrois d’<span class="primary--text">Electrik Cellar</span> remonte à la surface terrestre pour partager un rock brut, sauvage, psychédélique et aérien. Leur isolement nourri à coups de guitares venues tout droit du désert californien, de basses lourdes et de batteries hypnotiques sont complétées par un mélange de voix aux mélodies Anglo-saxonnes.',
         },
@@ -718,7 +718,7 @@ export default {
           name: 'San-Seyha',
           code: '9QN-PzN5qKs',
           styles: ['Chanson'],
-          votes: 0,
+          votes: 33,
           description:
             '<span class="primary--text">San-Seyha</span> questionne son identité à travers l’exil, qu’il soit géographique ou existentiel, et nous embarque dans une traversée entre chant, slam et poésie. Sa voix est sincère et contagieuse et la musique accomplit le reste du voyage. Avec Vincent Loyer (machines/basse) et Damien Saint-Loup (guitare, oud, choeurs), pour une atmosphère citadine, mécanique et envoûtante et des mélodies électriques et puissantes.',
         },
@@ -726,7 +726,7 @@ export default {
           name: 'The Boys Friends',
           code: 'AZLsy70g--4',
           styles: ['Rock', 'Jazz', 'Pop'],
-          votes: 0,
+          votes: 86,
           description:
             'Slook, Pippin, Lapin et Jamo ont uni leurs humours et leurs passions de la musique afin de créer le goupe <span class="primary--text">The Boys Friends</span>. Groupe atypique, dont le but est de magnifier vos tubes préférés des années 70s, 80s en allant même jusqu’aux années 90s. C’est avec un set totalement acoustique que nous nous produisons tout en mêlant humour, ambiance et chanson. Jazz, Blues, Folk, Rock, Bossa, etc... il y en aura pour tout les goûts.',
         },
@@ -775,7 +775,7 @@ export default {
         window: undefined,
         interval: null,
       },
-      voteClosed: false,
+      voteClosed: true,
     };
   },
   mounted() {
